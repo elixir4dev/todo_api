@@ -55,15 +55,32 @@ Execute the following command
 
 `mix phx.gen.json Tasks Todo todos title:string description:string completed:boolean deadline:date`
 
-It's a generator that creates a JSON-based API for a resource named `Todo`` inside a context named `Tasks``. A context is a module that groups related functionality and serves as an interface to the data layer.
+This command it's a generator that creates a JSON-based API for a resource named `Todo` inside a context named `Tasks`. A context is a module that groups related functionality and serves as an interface to the data layer.
 
-The command will do
-* Generate a controller, a JSON view, and a context for a JSON resource called Todo in the Tasks module
-* Define four attributes for the Todo resource: title, description, completed, and deadline, with their respective types: string, string, boolean, and date
-* Create a schema for the Todo resource in the Tasks context, with a todos table in the database
-* Create a migration file for the repository and test files for the context and controller features
-* Use the default API prefix of “/api” for the route paths
+The first argument is the context module followed by the schema module and its
+plural name (used as the schema table name).
 
+The context is an Elixir module that serves as an API boundary for the given
+resource. A context often holds many related resources. Therefore, if the
+context already exists, it will be augmented with functions for the given
+resource.
+
+The schema is responsible for mapping the database fields into an Elixir
+struct. It is followed by an optional list of attributes, with their respective
+names and types. See mix phx.gen.schema for more information on attributes.
+
+Overall, this generator will add the following files to lib/:
+
+  • a context module in lib/todo_api/tasks.ex for the Todo API
+  • a schema in lib/todo_api/todo.ex, with a todos table
+  • a controller in lib/todo_api_web/controllers/todo_controller.ex
+  • a JSON view collocated with the controller in
+    lib/todo_Api_web/controllers/todo_json.ex
+
+A migration file for the repository and test files for the context and
+controller features will also be generated.
+
+To learn more about it run the command `mix help phx.gen.json`
 ## Update the router
 Add the resource to your :api scope in `lib/todo_api_web/router.ex:``
 
