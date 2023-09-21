@@ -16,5 +16,6 @@ defmodule TodoApi.Tasks.Todo do
     todo
     |> cast(attrs, [:title, :description, :completed, :deadline])
     |> validate_required([:title, :description, :completed, :deadline])
+    |> unique_constraint([:title], message: "Task already exists")
   end
 end

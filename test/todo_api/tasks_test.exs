@@ -61,5 +61,12 @@ defmodule TodoApi.TasksTest do
       todo = todo_fixture()
       assert %Ecto.Changeset{} = Tasks.change_todo(todo)
     end
+
+    test "create_todo/1 with duplicate data returns error" do
+      valid_attrs = %{description: "some description", title: "some title task", deadline: ~D[2023-09-19], completed: true}
+
+       assert {:ok, %Todo{} = todo} = Tasks.create_todo(valid_attrs)
+       assert {:error, %Ecto.Changeset{}} = Tasks.create_todo(valid_attrs)
+     end
   end
 end

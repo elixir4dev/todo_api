@@ -127,11 +127,126 @@ This will enable us to test our API
 
 ### Run the migrations
 
-    `mix.ecto migrate`
+    mix.ecto migrate
     
 ### Seed the database using the relevant file
-    `mix run priv/repo/seeds.exs`
+    mix run priv/repo/seeds.exs
     
 ### Test that everything works as intended
     
-    `mix test`
+    mix test
+
+## How to avoid duplicated entries
+
+Verify what happends when we add duplicated entries.
+Add the following test case to the test cases `test/todo_api/tasks_test.exs`
+
+```
+    test "create_tast/1 with duplicate data returns error" do
+     valid_attrs = %{description: "some description", title: "some title", deadline: ~D[2023-09-19], completed: true}
+
+      assert {:ok, %Todo{} = todo} = Tasks.create_todo(valid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_todo(valid_attrs)
+    end
+```
+
+
+### Run the test cases
+
+  mix test
+
+
+Since we are not handling duplicate entires we expect to have a test case failure
+
+```
+  1) test todos create_tast/1 with duplicate data returns error (TodoApi.TasksTest)
+     test/todo_api/tasks_test.exs:65
+     match (=) failed
+     code:  assert {:error, %Ecto.Changeset{}} = Tasks.create_todo(valid_attrs)
+     left:  {:error, #Ecto.Changeset<action: nil, changes: %{}, errors: [], data: nil, valid?: false>}
+     right: {
+              :ok,
+              %TodoApi.Tasks.Todo{__meta__: #Ecto.Schema.Metadata<:loaded, "todos">, id: 40, description: "some description", title: "some title", deadline: ~D[2023-09-19], completed: true, inserted_at: ~N[2023-09-21 11:56:54], updated_at: ~N[2023-09-21 11:56:54]}
+            }
+     stacktrace:
+       test/todo_api/tasks_test.exs:73: (test)
+
+
+```
+
+Now we need to modify the migration and schema files to ensure that the todo title is unique. 
+After that we will verify the fix running the test cases. 
+
+We also need to modify the changeset inside the /lib/todo_api/tasks/todo.ex file
+
+```
+  def changeset(todo, attrs) do
+    todo
+    |> cast(attrs, [:title, :description, :completed, :deadline])
+    |> validate_required([:title, :description, :completed, :deadline])
+    |> unique_constraint([:title], message: "Task already exists")
+  end
+```
+
+## Create a migration 
+
+A migration in Ecto is a way of changing your database structure. You can use Elixir code to create, modify, or drop tables, columns, indexes, and more. Migrations are stored in files under `priv/repo/migrations`, and each file has a name and number. You can run migrations using Mix tasks, such as `mix ecto.migrate` or `mix ecto.rollback`. Migrations help you keep track of your database schema changes and apply them consistently across different environments. Migrations are an essential part of working with Ecto, a powerful tool for interacting with databases in Elixir. To learn more, check out [Ecto.Migration](https://hexdocs.pm/ecto_sql/Ecto.Migration.html) or [Ecto.Basics](https://elixirschool.com/en/lessons/ecto/basics/).
+
+
+`mix ecto.gen.migration add_unique_index_title_to_tasks`
+
+Add the following code in the function change in the migration file.
+
+```
+  create unique_index(:todos, [:title])
+```
+
+The file will looks like this
+
+```
+defmodule TodoApi.Repo.Migrations.AddUniqueIndexTitleToTasks do
+  use Ecto.Migration
+
+  def change do
+    create unique_index(:todos, [:title])
+  end
+end
+
+```
+Before we need to apply the migration running the following command
+  mix.ecto.migrate
+
+We can wow you can run the test cases
+  mix test
+
+Now all the test cases should pass.
+
+## API testing
+Test the API with Postman, https://hoppscotch.io/ or any other API client
+
+  GET     /api/todos                  TodoApiWeb.TodoController :index
+  GET     /api/todos/:id              TodoApiWeb.TodoController :show
+  POST    /api/todos                  TodoApiWeb.TodoController :create
+  PATCH   /api/todos/:id              TodoApiWeb.TodoController :update
+  PUT     /api/todos/:id              TodoApiWeb.TodoController :update
+  DELETE  /api/todos/:id              TodoApiWeb.TodoController :delete
+
+ ## Create a new course 
+ POST http://localhost:5000/api/courses  Content-Type application/json
+
+  {
+    title: "Learn Elixir",
+    description: "Learn Elixir Fundamentals",
+    completed: false,
+    deadline: ~D[2023-09-25]
+}
+
+## Get all courses 
+
+GET http://localhost:4000/api/todos
+
+## Notes
+
+ you want to start with a fresh database run
+
+  mix ecto.reset
