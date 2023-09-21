@@ -38,13 +38,13 @@ Your will see a message like this
 
 `The database for TodoApi.Repo has been created`
 
-From the command line vavigate to the project directory with the command cd todo_api and start the Phoenix server with the command mix phx.server. 
+From the command line vavigate to the project directory with the command cd todo_api and start the Phoenix server with the command `mix phx.server`. 
 
 You should be able to access the default Phoenix welcome page by opening your web browser and navigating to http://localhost:4000.
 
 ## Create the API Controller, JSON view and context 
 
-We are going to create a Todo schema inside a context named Tasks. Add the following attributes as fields inside the Todo schema:
+We are going to create a `Todo` schema inside a context named `Tasks`. Add the following attributes as fields inside the Todo schema:
 
 - A title for the task
 - A description of the task
@@ -55,7 +55,8 @@ Execute the following command
 
 `mix phx.gen.json Tasks Todo todos title:string description:string completed:boolean deadline:date`
 
-This command it's a generator that creates a JSON-based API for a resource named `Todo` inside a context named `Tasks`. A context is a module that groups related functionality and serves as an interface to the data layer.
+This command it's a generator that creates a JSON-based API for a resource named `Todo` inside a context named `Tasks`.  We will see another approach to build
+an API at the end. A context is a module that groups related functionality and serves as an interface to the data layer.
 
 The first argument is the context module followed by the schema module and its
 plural name (used as the schema table name).
@@ -67,29 +68,70 @@ resource.
 
 The schema is responsible for mapping the database fields into an Elixir
 struct. It is followed by an optional list of attributes, with their respective
-names and types. See mix phx.gen.schema for more information on attributes.
+names and types. See `mix help phx.gen.schema` for more information on attributes.
 
 Overall, this generator will add the following files to lib/:
 
-  • a context module in lib/todo_api/tasks.ex for the Todo API
-  • a schema in lib/todo_api/todo.ex, with a todos table
-  • a controller in lib/todo_api_web/controllers/todo_controller.ex
-  • a JSON view collocated with the controller in
+  - a context module in lib/todo_api/tasks.ex for the Todo API
+  - a schema in lib/todo_api/todo.ex, with a todos table
+  - a controller in lib/todo_api_web/controllers/todo_controller.ex
+  - a JSON view collocated with the controller in
     lib/todo_Api_web/controllers/todo_json.ex
 
 A migration file for the repository and test files for the context and
 controller features will also be generated.
 
 To learn more about it run the command `mix help phx.gen.json`
+
 ## Update the router
-Add the resource to your :api scope in `lib/todo_api_web/router.ex:``
+Add the resource to your :api scope in `lib/todo_api_web/router.ex:`
 
 ```
-    resources "/todos", TodoController, except: [:new, :edit]
+  scope "/api", TodoApiWeb do
+     pipe_through :api
+
+     resources "/todos", TodoController, except: [:new, :edit]
+  end
 ```
 
-## Update the Database
+## Migrate the changes to the Repository
+After creating the schema, it is time to migrate the changes to the repository. We are going to seed the database with dummy data.
+This will enable us to test our API
 
-Run the following command
+ - Update the /priv/repo/seeds.exs file with dummy records
 
-`mix ecto.migrate`
+    ```
+    TodoApi.Repo.insert!(%TodoApi.Tasks.Todo{
+      title: "Buy groceries",
+      description: "Milk, eggs, bread, cheese, apples, bananas",
+      completed: false,
+      deadline: ~D[2023-09-25]
+    })
+
+    TodoApi.Repo.insert!(%TodoApi.Tasks.Todo{
+      title: "Finish homework",
+      description: "Math, English, History",
+      completed: true,
+      deadline: ~D[2023-09-20]
+    })
+
+    TodoApi.Repo.insert!(%TodoApi.Tasks.Todo{
+      title: "Call mom",
+      description: "Wish her happy birthday",
+      completed: false,
+      deadline: ~D[2023-09-22]
+    })
+    ```
+
+  - Check test cases /test/todo_api/tasks_test.exs file that contains a few tests for the context that was created previously.
+
+### Run the migrations
+
+    `mix.ecto migrate`
+    
+### Seed the database using the relevant file
+    `mix run priv/repo/seeds.exs`
+    
+### Test that everything works as intended
+    
+    `mix test`
