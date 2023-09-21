@@ -7,32 +7,34 @@ To build a REST API for a TODO list app in Elixir and Phoenix, you can follow th
   - Database: PostgreSQL 
 
 Check the current version of Elixir: 
-
-`elixir -v`
+    elixir -v
 
 ## Install Hex
+    mix local.hex
 
- `mix local.hex`
 [Hex](https://hex.pm/) is a package manager for the Erlang ecosystem, which includes Elixir. 
 Hex allows you to fetch, manage, and publish packages from a central repository. 
  
 ## Install Phoenix
-Check if Phoenix is installed `mix phx.new --version`
+Check if Phoenix is installed 
+      phx.new --version
 
- `mix archive.install hex phx_new`
+If it's not installed install it with the following command
+
+     mix archive.install hex phx_new
 
 ## Create a new Phoenix Project
-
-`mix phx.new todo_api`
+   mix phx.new todo_api
 
 This will generate the basic structure of a Phoenix project, including configuration files, a supervision tree, and an initial endpoint.
+For now we will use this approach but it will install a few things that are not required for a JSON API.
 
 ## Create the Database
 Configure your database (by default PostgreSQL) in the file `config/dev.exs` optionally `config/test.exs` if you want to run the test cases. 
 You will need to have a database installed or use a Docker container with PostgreSQL.
 
 Create the database with the command 
-`mix ecto.create`
+    mix ecto.create
 
 Your will see a message like this
 
@@ -153,7 +155,7 @@ Add the following test case to the test cases `test/todo_api/tasks_test.exs`
 
 ### Run the test cases
 
-  mix test
+    mix test
 
 
 Since we are not handling duplicate entires we expect to have a test case failure
@@ -214,15 +216,16 @@ end
 
 ```
 Before we need to apply the migration running the following command
-  mix.ecto.migrate
+    mix.ecto.migrate
 
 We can wow you can run the test cases
-  mix test
+    mix test
 
 Now all the test cases should pass.
 
 ## API testing
-Test the API with Postman, https://hoppscotch.io/ or any other API client
+
+Test the API with Postman, https://hoppscotch.io/ or any other API client 
 
   - GET     /api/todos                  TodoApiWeb.TodoController :index
   - GET     /api/todos/:id              TodoApiWeb.TodoController :show
@@ -231,8 +234,30 @@ Test the API with Postman, https://hoppscotch.io/ or any other API client
   - PUT     /api/todos/:id              TodoApiWeb.TodoController :update
   - DELETE  /api/todos/:id              TodoApiWeb.TodoController :delete
 
- ## Create a new course 
- POST http://localhost:5000/api/courses  Content-Type application/json
+### Using CURL to test the API
+
+To get a list of all todos, you can use this command:
+
+  curl -X GET http://localhost:4000/api/todos
+
+To get a specific todo by its id, you can use this command (replace :id with the actual id):
+```
+  curl -X GET http://localhost:4000/api/todos/:id
+```
+To create a new todo with the given JSON body, you can use this command:
+```
+  curl -X POST -H "Content-Type: application/json" -d '{"todo": {"title": "Learn Elixir", "description": "A functional programming language", "completed": false, "deadline": "2023-09-30"}}' http://localhost:4000/api/todos
+```
+To update an existing todo by its id with the given JSON body, you can use this command (replace :id with the actual id):
+```
+  curl -X PATCH -H "Content-Type: application/json" -d '{"todo": {"title": "Learn Elixir", "description": "A functional programming language", "completed": false, "deadline": "2023-09-30"}}' http://localhost:4000/api/todos/:id
+```
+To delete an existing todo by its id, you can use this command (replace :id with the actual id):
+```
+   curl -X DELETE http://localhost:4000/api/todos/:id
+```
+ ## Create a new course (Postman or https://hoppscotch.io/)
+ ```POST http://localhost:4000/api/todos  Content-Type application/json
 
   {
     title: "Learn Elixir",
@@ -240,13 +265,32 @@ Test the API with Postman, https://hoppscotch.io/ or any other API client
     completed: false,
     deadline: ~D[2023-09-25]
   }
-
+```
 ## Get all courses 
 
-GET http://localhost:4000/api/todos
+`GET http://localhost:4000/api/todos`
 
 ## Notes
 
- you want to start with a fresh database run
+if you want to start with a fresh database run
 
-  mix ecto.reset
+    mix ecto.reset
+
+
+## Improvements
+Now that we know the basics we can redo our project using a better approach to build the Phoenix project
+
+   mix phx.new project_name --no-install --app project_name --database postgres --no-live --no-assets --no-html --no-dashboard --no-mailer 
+
+ - --no-install - do not fetch and install the dependencies automatically. You will need to run mix deps.get manually after creating the project1.
+ - --app project_name - specify the name of the OTP application. This will also be used as the module name for the generated skeleton1.
+ - --database postgres - specify the database adapter for Ecto. This will use Postgrex to connect to a PostgreSQL database1.
+ - --no-live - do not include Phoenix.LiveView, which is a feature that allows you to build interactive, real-time applications12.
+ -  --no-assets - do not generate any files for static asset building, such as webpack or esbuild. This option is equivalent to --no-esbuild and -  - - --no-tailwind1. You will need to handle JavaScript dependencies manually if you want to use them1.
+ - --no-html - do not generate any HTML views or templates. This option is useful for API-only applications1.
+ - --no-dashboard - do not include Phoenix.LiveDashboard, which is a feature that provides real-time performance monitoring and debugging tools for Phoenix applications13.
+- --no-mailer - do not generate any files for Swoosh mailer, which is a library that allows you to send emails from your Phoenix application14
+
+
+
+
