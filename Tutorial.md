@@ -280,16 +280,25 @@ if you want to start with a fresh database run
 ## Improvements
 Now that we know the basics we can redo our project using a better approach to build the Phoenix project
 
+```
    mix phx.new project_name --no-install --app project_name --database postgres --no-live --no-assets --no-html --no-dashboard --no-mailer 
-
- - --no-install - do not fetch and install the dependencies automatically. You will need to run mix deps.get manually after creating the project1.
- - --app project_name - specify the name of the OTP application. This will also be used as the module name for the generated skeleton1.
- - --database postgres - specify the database adapter for Ecto. This will use Postgrex to connect to a PostgreSQL database1.
- - --no-live - do not include Phoenix.LiveView, which is a feature that allows you to build interactive, real-time applications12.
- -  --no-assets - do not generate any files for static asset building, such as webpack or esbuild. This option is equivalent to --no-esbuild and -  - - --no-tailwind1. You will need to handle JavaScript dependencies manually if you want to use them1.
- - --no-html - do not generate any HTML views or templates. This option is useful for API-only applications1.
- - --no-dashboard - do not include Phoenix.LiveDashboard, which is a feature that provides real-time performance monitoring and debugging tools for Phoenix applications13.
-- --no-mailer - do not generate any files for Swoosh mailer, which is a library that allows you to send emails from your Phoenix application14
+```
+ - `--no-install` 
+    - do not fetch and install the dependencies automatically. You will need to run mix deps.get manually after creating the project1.
+ - `--app project_name` 
+    - specify the name of the OTP application. This will also be used as the module name for the generated skeleton1.
+ - `--database postgres` 
+    - specify the database adapter for Ecto. This will use Postgrex to connect to a PostgreSQL database1.
+ - `--no-live` 
+    - do not include Phoenix.LiveView, which is a feature that allows you to build interactive, real-time applications12.
+ -  `--no-assets` 
+    - do not generate any files for static asset building, such as webpack or esbuild. This option is equivalent to --no-esbuild and -  - - --no-tailwind1. You will need to handle JavaScript dependencies manually if you want to use them1.
+ - `--no-html` 
+    - do not generate any HTML views or templates. This option is useful for API-only applications1.
+ - `--no-dashboard` 
+    - do not include Phoenix.LiveDashboard, which is a feature that provides real-time performance monitoring and debugging tools for Phoenix applications13.
+- `--no-mailer` 
+    - do not generate any files for Swoosh mailer, which is a library that allows you to send emails from your Phoenix application14
 
 
 
