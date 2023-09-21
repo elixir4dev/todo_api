@@ -224,12 +224,12 @@ Now all the test cases should pass.
 ## API testing
 Test the API with Postman, https://hoppscotch.io/ or any other API client
 
-  GET     /api/todos                  TodoApiWeb.TodoController :index
-  GET     /api/todos/:id              TodoApiWeb.TodoController :show
-  POST    /api/todos                  TodoApiWeb.TodoController :create
-  PATCH   /api/todos/:id              TodoApiWeb.TodoController :update
-  PUT     /api/todos/:id              TodoApiWeb.TodoController :update
-  DELETE  /api/todos/:id              TodoApiWeb.TodoController :delete
+  - GET     /api/todos                  TodoApiWeb.TodoController :index
+  - GET     /api/todos/:id              TodoApiWeb.TodoController :show
+  - POST    /api/todos                  TodoApiWeb.TodoController :create
+  - PATCH   /api/todos/:id              TodoApiWeb.TodoController :update
+  - PUT     /api/todos/:id              TodoApiWeb.TodoController :update
+  - DELETE  /api/todos/:id              TodoApiWeb.TodoController :delete
 
  ## Create a new course 
  POST http://localhost:5000/api/courses  Content-Type application/json
@@ -239,7 +239,7 @@ Test the API with Postman, https://hoppscotch.io/ or any other API client
     description: "Learn Elixir Fundamentals",
     completed: false,
     deadline: ~D[2023-09-25]
-}
+  }
 
 ## Get all courses 
 
