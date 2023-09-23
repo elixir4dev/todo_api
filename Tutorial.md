@@ -9,6 +9,9 @@ In this version will will generate the basic structure of a Phoenix project targ
   - Erlang  OTP 26
   - Database: PostgreSQL 
 
+Check the following [guide](https://github.com/elixir4dev/PostgresDocketContainer) to install Docker desktop and getting a local container with PostgreSQL 
+
+
 Check the current version of Elixir: 
     elixir -v
 
