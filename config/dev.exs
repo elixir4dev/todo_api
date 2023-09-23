@@ -23,11 +23,8 @@ config :todo_api, TodoApiWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "XlmRrQwHzy5kpgu9WnSwYPVFUcAJ+NqK/T0um9sxyU/SHX/DO7zppNnPgbcRW7+F",
-  watchers: [
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
-  ]
+  secret_key_base: "ad/UHa4CuUB8utWrzzwnycI0nz9qv8cNqK5bdBOE0o6oN7BBAKAMRAFaYRKydT9h",
+  watchers: []
 
 # ## SSL Support
 #
@@ -52,16 +49,6 @@ config :todo_api, TodoApiWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-# Watch static and templates for browser reloading.
-config :todo_api, TodoApiWeb.Endpoint,
-  live_reload: [
-    patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"priv/gettext/.*(po)$",
-      ~r"lib/todo_api_web/(controllers|live|components)/.*(ex|heex)$"
-    ]
-  ]
-
 # Enable dev routes for dashboard and mailbox
 config :todo_api, dev_routes: true
 
@@ -74,6 +61,3 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false

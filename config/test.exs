@@ -9,7 +9,7 @@ config :todo_api, TodoApi.Repo,
   username: "jv_db",
   password: "jv_elixir",
   hostname: "localhost",
-  database: "todo_api_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "todo_api_test2#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -17,14 +17,8 @@ config :todo_api, TodoApi.Repo,
 # you can enable the server option below.
 config :todo_api, TodoApiWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "E93L4mwMFWsPdKZnBPJlrTgto0vJZS+gbgOLvob19QpF6FjMsPHDNrxNDbnDtzdB",
+  secret_key_base: "C4rWQXvaKELXfRlWjjLXeozQI8xNfJO/7R86ksnI/SfX9B1nBvHKr9sNdOyNskqC",
   server: false
-
-# In test we don't send emails.
-config :todo_api, TodoApi.Mailer, adapter: Swoosh.Adapters.Test
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
 
 # Print only warnings and errors during test
 config :logger, level: :warning

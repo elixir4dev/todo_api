@@ -24,10 +24,33 @@ If it's not installed install it with the following command
      mix archive.install hex phx_new
 
 ## Create a new Phoenix Project
-   mix phx.new todo_api
+     mix phx.new todo_api --no-install --app todo_api --database postgres --no-live --no-assets --no-html --no-dashboard --no-mailer 
 
-This will generate the basic structure of a Phoenix project, including configuration files, a supervision tree, and an initial endpoint.
-For now we will use this approach but it will install a few things that are not required for a JSON API.
+
+Command options overview 
+ - `--no-install` 
+    - do not fetch and install the dependencies automatically. You will need to run mix deps.get manually after creating the project1.
+ - `--app project_name` 
+    - specify the name of the OTP application. This will also be used as the module name for the generated skeleton1.
+ - `--database postgres` 
+    - specify the database adapter for Ecto. This will use Postgrex to connect to a PostgreSQL database1.
+ - `--no-live` 
+    - do not include Phoenix.LiveView, which is a feature that allows you to build interactive, real-time applications12.
+ -  `--no-assets` 
+    - do not generate any files for static asset building, such as webpack or esbuild. This option is equivalent to --no-esbuild and -  - - --no-tailwind1. You will need to handle JavaScript dependencies manually if you want to use them1.
+ - `--no-html` 
+    - do not generate any HTML views or templates. This option is useful for API-only applications1.
+ - `--no-dashboard` 
+    - do not include Phoenix.LiveDashboard, which is a feature that provides real-time performance monitoring and debugging tools for Phoenix applications13.
+- `--no-mailer` 
+    - do not generate any files for Swoosh mailer, which is a library that allows you to send emails from your Phoenix application14
+
+
+This will generate the basic structure of a Phoenix project. This is better than the generic approach `mix phx.new todo_api`  used before when you only want to create a REST API using Phoenix and don’t need LiveView, assets, HTML, dashboard, or mailer. It helps you avoid generating unnecessary files and dependencies that are not required for an API-only application. This can save you time and reduce the complexity of your project by keeping it focused on the essentials.
+
+## Fetch the dependencies
+
+    mix.deps.get
 
 ## Create the Database
 Configure your database (by default PostgreSQL) in the file `config/dev.exs` optionally `config/test.exs` if you want to run the test cases. 
@@ -40,11 +63,11 @@ Your will see a message like this
 
 `The database for TodoApi.Repo has been created`
 
-From the command line vavigate to the project directory with the command cd todo_api and start the Phoenix server with the command `mix phx.server`. 
+From the command line vavigate to the project directory with the command cd todo_api and start the Phoenix server with the command `mix phx.server`.
+Now you will get a 404 
 
-You should be able to access the default Phoenix welcome page by opening your web browser and navigating to http://localhost:4000.
 
-## Create the API Controller, JSON view and context 
+## Create the Schema
 
 We are going to create a `Todo` schema inside a context named `Tasks`. Add the following attributes as fields inside the Todo schema:
 
@@ -55,46 +78,19 @@ We are going to create a `Todo` schema inside a context named `Tasks`. Add the f
 
 Execute the following command
 
-`mix phx.gen.json Tasks Todo todos title:string description:string completed:boolean deadline:date`
+`mix phx.gen.context Tasks Todo todos title:string description:string completed:boolean deadline:date`
 
-This command it's a generator that creates a JSON-based API for a resource named `Todo` inside a context named `Tasks`.  We will see another approach to build
-an API at the end. A context is a module that groups related functionality and serves as an interface to the data layer.
+The command generates a **context** with functions around an **Ecto schema**¹. The first argument is the context module followed by the schema module and its plural name (used as the schema table name). The context is an Elixir module that serves as an API boundary for the given resource¹. It adds the following files to `lib/todo_api`:
+- A context module in `tasks.ex`, serving as the API boundary.
+- A schema in `tasks/todo.ex`, with a `todos` table.
+- A migration file for the repository and test files for the context will also be generated¹.
 
-The first argument is the context module followed by the schema module and its
-plural name (used as the schema table name).
+This generator will prompt you if there is an existing context with the same name, in order to provide more instructions on how to correctly use Phoenix contexts¹. You can skip this prompt and automatically merge the new schema access functions and tests into the existing context using `--merge-with-existing-context`. To prevent changes to the existing context and exit the generator, use `--no-merge-with-existing-context`¹.
 
-The context is an Elixir module that serves as an API boundary for the given
-resource. A context often holds many related resources. Therefore, if the
-context already exists, it will be augmented with functions for the given
-resource.
+(1) mix phx.gen.context — Phoenix v1.7.7 - HexDocs. https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Context.html.
 
-The schema is responsible for mapping the database fields into an Elixir
-struct. It is followed by an optional list of attributes, with their respective
-names and types. See `mix help phx.gen.schema` for more information on attributes.
+To learn more about it run the command `mix help phx.gen.context`
 
-Overall, this generator will add the following files to lib/:
-
-  - a context module in lib/todo_api/tasks.ex for the Todo API
-  - a schema in lib/todo_api/todo.ex, with a todos table
-  - a controller in lib/todo_api_web/controllers/todo_controller.ex
-  - a JSON view collocated with the controller in
-    lib/todo_Api_web/controllers/todo_json.ex
-
-A migration file for the repository and test files for the context and
-controller features will also be generated.
-
-To learn more about it run the command `mix help phx.gen.json`
-
-## Update the router
-Add the resource to your :api scope in `lib/todo_api_web/router.ex:`
-
-```
-  scope "/api", TodoApiWeb do
-     pipe_through :api
-
-     resources "/todos", TodoController, except: [:new, :edit]
-  end
-```
 
 ## Migrate the changes to the Repository
 After creating the schema, it is time to migrate the changes to the repository. We are going to seed the database with dummy data.
@@ -137,6 +133,102 @@ This will enable us to test our API
 ### Test that everything works as intended
     
     mix test
+
+
+## Create the Controller for the API.
+In the other approach we didn't need to create the controller because we use  `mix phx.gen.json` and it generates everything for us.
+The context module `tasks.ex`, the schema `todo.ex`, the controller `todo_controller.ex` and the JSON view `todo_json.ex` 
+
+So now we will create a simple JSON-based API to perform CRUD operations. Running the following command.
+
+`mix phx.gen.json Tasks Todo todos title:string description:string completed:boolean deadline:date --no-context --no-schema`
+
+As you can see, this is quite similar to the command that we run in our first approach. But we have two additional flags.
+The `--no-schema` flag is used to skip generating an Ecto schema for the resource. This means that the generated code will not include a database table or migration file. It can be useful when you want to create a JSON API without persisting data in a database or when you have already it in place.
+
+The `--no-context` flag is used to skip generating a context module for the resource. The context module serves as an API boundary and provides functions for working with the resource2. By skipping the context generation, you have more flexibility in how you structure your application and handle the resource’s logic.
+
+Using these flags allows you to generate only the necessary files for a JSON API, without generating additional files and dependencies that are not required for your specific use case, or you have already done it.
+
+After we run the command we see the following message.
+
+Add the resource to your :api scope in lib/todo_api_web/router.ex:
+
+    resources "/todos", TodoController, except: [:new, :edit]
+
+So you will need to update the router to have
+
+```
+  scope "/api", TodoApiWeb do
+     pipe_through :api
+
+     resources "/todos", TodoController, except: [:new, :edit]
+  end
+```
+So now we need to verify that everything is ok.
+
+Run the test cases
+
+    mix test
+
+Surprise!!, we have some tests cases that are faling. I just copy one of the errors
+
+```
+  1) test create todo renders errors when data is invalid (TodoApiWeb.TodoControllerTest)
+     test/todo_api_web/controllers/todo_controller_test.exs:49
+     ** (FunctionClauseError) no function clause matching in TodoApiWeb.FallbackController.call/2
+
+     The following arguments were given to TodoApiWeb.FallbackController.call/2:
+     
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{"todo" => %{"completed" => nil, "deadline" => nil, "description" => nil, "title" => nil}}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "POST", owner: #PID<0.405.0>, params: %{"todo" => %{"completed" => nil, "deadline" => nil, "description" => nil, "title" => nil}}, path_info: ["api", "todos"], path_params: %{}, port: 80, private: %{:phoenix_view => %{"html" => TodoApiWeb.TodoHTML, "json" => TodoApiWeb.TodoJSON}, TodoApiWeb.Router => [], :phoenix_router => TodoApiWeb.Router, :phoenix_action => :create, :phoenix_layout => %{"html" => {TodoApiWeb.Layouts, :app}}, :phoenix_controller => TodoApiWeb.TodoController, :phoenix_endpoint => TodoApiWeb.Endpoint, :phoenix_format => "json", :plug_session_fetch => #Function<1.76384852/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.54455629/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [{"accept", "application/json"}, {"content-type", "multipart/mixed; boundary=plug_conn_test"}], request_path: "/api/todos", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "F4eS1oMCU9GYj7oAAAUK"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}
+     
+         # 2
+         {:error, #Ecto.Changeset<action: :insert, changes: %{}, errors: [title: {"can't be blank", [validation: :required]}, description: {"can't be blank", [validation: :required]}, completed: {"can't be blank", [validation: :required]}, deadline: {"can't be blank", [validation: :required]}], data: #TodoApi.Tasks.Todo<>, valid?: false>}
+     
+     Attempted function clauses (showing 1 out of 1):
+     
+         def call(conn, {:error, :not_found})
+     
+     code: conn = post(conn, ~p"/api/todos", todo: @invalid_attrs)
+     stacktrace:
+       (todo_api 0.1.0) lib/todo_api_web/controllers/fallback_controller.ex:10: TodoApiWeb.FallbackController.call/2
+       (todo_api 0.1.0) lib/todo_api_web/controllers/todo_controller.ex:1: TodoApiWeb.TodoController.action/2
+       (todo_api 0.1.0) lib/todo_api_web/controllers/todo_controller.ex:1: TodoApiWeb.TodoController.phoenix_controller_pipeline/2
+       (phoenix 1.7.7) lib/phoenix/router.ex:430: Phoenix.Router.__call__/5
+       (todo_api 0.1.0) lib/todo_api_web/endpoint.ex:1: TodoApiWeb.Endpoint.plug_builder_call/2
+       (todo_api 0.1.0) lib/todo_api_web/endpoint.ex:1: TodoApiWeb.Endpoint.call/2
+       (phoenix 1.7.7) lib/phoenix/test/conn_test.ex:225: Phoenix.ConnTest.dispatch/5
+       test/todo_api_web/controllers/todo_controller_test.exs:50: (test)
+
+```
+To fix this error, we need to define a function clause in `TodoApiWeb.FallbackController` that matches the arguments provided by the test. 
+It tries 
+
+```Attempted function clauses (showing 1 out of 1):
+     
+         def call(conn, {:error, :not_found})
+```
+but the expected function should ne
+
+```
+  def call(conn, {:error, changeset}) 
+```
+
+So add the following code to the `TodoApiWeb.FallbackController` module
+
+```
+    # This clause handles errors returned by Ecto's insert/update/delete.
+  def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
+    conn
+     |> put_status(:unprocessable_entity)
+     |> put_view(json: TodoApiWeb.ChangesetJSON)
+     |> render(:error, changeset: changeset)
+  end
+```
+Note that in the previous approach this was automatically added for us.
+
+Re run the test cases and verify that everything is ok.
 
 ## How to avoid duplicated entries
 

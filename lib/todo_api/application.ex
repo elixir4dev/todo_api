@@ -14,8 +14,6 @@ defmodule TodoApi.Application do
       TodoApi.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: TodoApi.PubSub},
-      # Start Finch
-      {Finch, name: TodoApi.Finch},
       # Start the Endpoint (http/https)
       TodoApiWeb.Endpoint
       # Start a worker by calling: TodoApi.Worker.start_link(arg)
