@@ -1,6 +1,9 @@
 # Build a TODO List REST API with Elixir and Phoenix.
 To build a REST API for a TODO list app in Elixir and Phoenix, you can follow these steps:
 
+In this version will will generate the basic structure of a Phoenix project targeting a REST API. This is better than the generic approach `mix phx.new todo_api`  used before when you only want to create a REST API using Phoenix and don’t need LiveView, assets, HTML, dashboard, or mailer. 
+
+
 ## Prerequisites
   - Elixir  15.5
   - Erlang  OTP 26
@@ -80,14 +83,13 @@ Execute the following command
 
 `mix phx.gen.context Tasks Todo todos title:string description:string completed:boolean deadline:date`
 
-The command generates a **context** with functions around an **Ecto schema**¹. The first argument is the context module followed by the schema module and its plural name (used as the schema table name). The context is an Elixir module that serves as an API boundary for the given resource¹. It adds the following files to `lib/todo_api`:
+The command generates a **context** with functions around an **Ecto schema**. The first argument is the context module followed by the schema module and its plural name (used as the schema table name). The context is an Elixir module that serves as an API boundary for the given resource¹. It adds the following files to `lib/todo_api`:
 - A context module in `tasks.ex`, serving as the API boundary.
 - A schema in `tasks/todo.ex`, with a `todos` table.
 - A migration file for the repository and test files for the context will also be generated¹.
 
 This generator will prompt you if there is an existing context with the same name, in order to provide more instructions on how to correctly use Phoenix contexts¹. You can skip this prompt and automatically merge the new schema access functions and tests into the existing context using `--merge-with-existing-context`. To prevent changes to the existing context and exit the generator, use `--no-merge-with-existing-context`¹.
 
-(1) mix phx.gen.context — Phoenix v1.7.7 - HexDocs. https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Context.html.
 
 To learn more about it run the command `mix help phx.gen.context`
 
@@ -244,11 +246,9 @@ Add the following test case to the test cases `test/todo_api/tasks_test.exs`
     end
 ```
 
-
 ### Run the test cases
 
     mix test
-
 
 Since we are not handling duplicate entires we expect to have a test case failure
 
@@ -367,31 +367,4 @@ To delete an existing todo by its id, you can use this command (replace :id with
 if you want to start with a fresh database run
 
     mix ecto.reset
-
-
-## Improvements
-Now that we know the basics we can redo our project using a better approach to build the Phoenix project
-
-```
-   mix phx.new project_name --no-install --app project_name --database postgres --no-live --no-assets --no-html --no-dashboard --no-mailer 
-```
- - `--no-install` 
-    - do not fetch and install the dependencies automatically. You will need to run mix deps.get manually after creating the project1.
- - `--app project_name` 
-    - specify the name of the OTP application. This will also be used as the module name for the generated skeleton1.
- - `--database postgres` 
-    - specify the database adapter for Ecto. This will use Postgrex to connect to a PostgreSQL database1.
- - `--no-live` 
-    - do not include Phoenix.LiveView, which is a feature that allows you to build interactive, real-time applications12.
- -  `--no-assets` 
-    - do not generate any files for static asset building, such as webpack or esbuild. This option is equivalent to --no-esbuild and -  - - --no-tailwind1. You will need to handle JavaScript dependencies manually if you want to use them1.
- - `--no-html` 
-    - do not generate any HTML views or templates. This option is useful for API-only applications1.
- - `--no-dashboard` 
-    - do not include Phoenix.LiveDashboard, which is a feature that provides real-time performance monitoring and debugging tools for Phoenix applications13.
-- `--no-mailer` 
-    - do not generate any files for Swoosh mailer, which is a library that allows you to send emails from your Phoenix application14
-
-
-
 
