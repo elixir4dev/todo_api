@@ -1,7 +1,7 @@
 # Build a TODO List REST API with Elixir and Phoenix.
 To build a REST API for a TODO list app in Elixir and Phoenix, you can follow these steps:
 
-In this version will will generate the basic structure of a Phoenix project targeting a REST API. This is better than the generic approach `mix phx.new todo_api`  used before when you only want to create a REST API using Phoenix and don’t need LiveView, assets, HTML, dashboard, or mailer. 
+In this version will will generate the basic structure of a Phoenix project targeting an HTML API. This is better than the generic approach `mix phx.new todo_api`  used before when you only want to create a simple HTML-based resource.
 
 
 ## Prerequisites
@@ -30,7 +30,7 @@ If it's not installed install it with the following command
      mix archive.install hex phx_new
 
 ## Create a new Phoenix Project
-     mix phx.new todo_api --no-install --app todo_api --database postgres --no-live --no-assets --no-html --no-dashboard --no-mailer 
+     mix phx.new todo_api --no-install --app todo_api --database postgres --no-live  --no-dashboard --no-mailer 
 
 
 Command options overview 
@@ -42,11 +42,7 @@ Command options overview
     - specify the database adapter for Ecto. This will use Postgrex to connect to a PostgreSQL database1.
  - `--no-live` 
     - do not include Phoenix.LiveView, which is a feature that allows you to build interactive, real-time applications12.
- -  `--no-assets` 
-    - do not generate any files for static asset building, such as webpack or esbuild. This option is equivalent to --no-esbuild and -  - - --no-tailwind1. You will need to handle JavaScript dependencies manually if you want to use them1.
- - `--no-html` 
-    - do not generate any HTML views or templates. This option is useful for API-only applications1.
- - `--no-dashboard` 
+  - `--no-dashboard` 
     - do not include Phoenix.LiveDashboard, which is a feature that provides real-time performance monitoring and debugging tools for Phoenix applications13.
 - `--no-mailer` 
     - do not generate any files for Swoosh mailer, which is a library that allows you to send emails from your Phoenix application14
@@ -140,34 +136,35 @@ This will enable us to test our API
     mix test
 
 
-## Create the Controller for the API.
+## Create the Controller for HTML resources
 In the other approach we didn't need to create the controller because we use  `mix phx.gen.json` and it generates everything for us.
 The context module `tasks.ex`, the schema `todo.ex`, the controller `todo_controller.ex` and the JSON view `todo_json.ex` 
 
 So now we will create a simple JSON-based API to perform CRUD operations. Running the following command.
 
-`mix phx.gen.json Tasks Todo todos title:string description:string completed:boolean deadline:date --no-context --no-schema`
+`mix phx.gen.html Tasks Todo todos title:string description:string completed:boolean deadline:date --no-context --no-schema`
 
 As you can see, this is quite similar to the command that we run in our first approach. But we have two additional flags.
 The `--no-schema` flag is used to skip generating an Ecto schema for the resource. This means that the generated code will not include a database table or migration file. It can be useful when you want to create a JSON API without persisting data in a database or when you have already it in place.
 
 The `--no-context` flag is used to skip generating a context module for the resource. The context module serves as an API boundary and provides functions for working with the resource2. By skipping the context generation, you have more flexibility in how you structure your application and handle the resource’s logic.
 
-Using these flags allows you to generate only the necessary files for a JSON API, without generating additional files and dependencies that are not required for your specific use case, or you have already done it.
+Using these flags allows you to generate only the necessary files for an HTML resource, without generating additional files and dependencies that are not required for your specific use case, or you have already done it.
 
 After we run the command we see the following message.
 
-Add the resource to your :api scope in lib/todo_api_web/router.ex:
+Add the resource to your browser scope in lib/todo_api_web/router.ex:
 
-    resources "/todos", TodoController, except: [:new, :edit]
+    resources "/todos", TodoController
 
 So you will need to update the router to have
 
 ```
-  scope "/api", TodoApiWeb do
-     pipe_through :api
+  scope "/", TodoApiWeb do
+    pipe_through :browser
 
-     resources "/todos", TodoController, except: [:new, :edit]
+    get "/", PageController, :home
+    resources "/todos", TodoController
   end
 ```
 So now we need to verify that everything is ok.
@@ -175,65 +172,6 @@ So now we need to verify that everything is ok.
 Run the test cases
 
     mix test
-
-Surprise!!, we have some tests cases that are faling. I just copy one of the errors
-
-```
-  1) test create todo renders errors when data is invalid (TodoApiWeb.TodoControllerTest)
-     test/todo_api_web/controllers/todo_controller_test.exs:49
-     ** (FunctionClauseError) no function clause matching in TodoApiWeb.FallbackController.call/2
-
-     The following arguments were given to TodoApiWeb.FallbackController.call/2:
-     
-         # 1
-         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{"todo" => %{"completed" => nil, "deadline" => nil, "description" => nil, "title" => nil}}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "POST", owner: #PID<0.405.0>, params: %{"todo" => %{"completed" => nil, "deadline" => nil, "description" => nil, "title" => nil}}, path_info: ["api", "todos"], path_params: %{}, port: 80, private: %{:phoenix_view => %{"html" => TodoApiWeb.TodoHTML, "json" => TodoApiWeb.TodoJSON}, TodoApiWeb.Router => [], :phoenix_router => TodoApiWeb.Router, :phoenix_action => :create, :phoenix_layout => %{"html" => {TodoApiWeb.Layouts, :app}}, :phoenix_controller => TodoApiWeb.TodoController, :phoenix_endpoint => TodoApiWeb.Endpoint, :phoenix_format => "json", :plug_session_fetch => #Function<1.76384852/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.54455629/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [{"accept", "application/json"}, {"content-type", "multipart/mixed; boundary=plug_conn_test"}], request_path: "/api/todos", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "F4eS1oMCU9GYj7oAAAUK"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}
-     
-         # 2
-         {:error, #Ecto.Changeset<action: :insert, changes: %{}, errors: [title: {"can't be blank", [validation: :required]}, description: {"can't be blank", [validation: :required]}, completed: {"can't be blank", [validation: :required]}, deadline: {"can't be blank", [validation: :required]}], data: #TodoApi.Tasks.Todo<>, valid?: false>}
-     
-     Attempted function clauses (showing 1 out of 1):
-     
-         def call(conn, {:error, :not_found})
-     
-     code: conn = post(conn, ~p"/api/todos", todo: @invalid_attrs)
-     stacktrace:
-       (todo_api 0.1.0) lib/todo_api_web/controllers/fallback_controller.ex:10: TodoApiWeb.FallbackController.call/2
-       (todo_api 0.1.0) lib/todo_api_web/controllers/todo_controller.ex:1: TodoApiWeb.TodoController.action/2
-       (todo_api 0.1.0) lib/todo_api_web/controllers/todo_controller.ex:1: TodoApiWeb.TodoController.phoenix_controller_pipeline/2
-       (phoenix 1.7.7) lib/phoenix/router.ex:430: Phoenix.Router.__call__/5
-       (todo_api 0.1.0) lib/todo_api_web/endpoint.ex:1: TodoApiWeb.Endpoint.plug_builder_call/2
-       (todo_api 0.1.0) lib/todo_api_web/endpoint.ex:1: TodoApiWeb.Endpoint.call/2
-       (phoenix 1.7.7) lib/phoenix/test/conn_test.ex:225: Phoenix.ConnTest.dispatch/5
-       test/todo_api_web/controllers/todo_controller_test.exs:50: (test)
-
-```
-To fix this error, we need to define a function clause in `TodoApiWeb.FallbackController` that matches the arguments provided by the test. 
-It tries 
-
-```Attempted function clauses (showing 1 out of 1):
-     
-         def call(conn, {:error, :not_found})
-```
-but the expected function should ne
-
-```
-  def call(conn, {:error, changeset}) 
-```
-
-So add the following code to the `TodoApiWeb.FallbackController` module
-
-```
-    # This clause handles errors returned by Ecto's insert/update/delete.
-  def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
-    conn
-     |> put_status(:unprocessable_entity)
-     |> put_view(json: TodoApiWeb.ChangesetJSON)
-     |> render(:error, changeset: changeset)
-  end
-```
-Note that in the previous approach this was automatically added for us.
-
-Re run the test cases and verify that everything is ok.
 
 ## How to avoid duplicated entries
 
@@ -318,52 +256,11 @@ We can wow you can run the test cases
 
 Now all the test cases should pass.
 
-## API testing
-
-Test the API with Postman, https://hoppscotch.io/ or any other API client 
-
-  - GET     /api/todos                  TodoApiWeb.TodoController :index
-  - GET     /api/todos/:id              TodoApiWeb.TodoController :show
-  - POST    /api/todos                  TodoApiWeb.TodoController :create
-  - PATCH   /api/todos/:id              TodoApiWeb.TodoController :update
-  - PUT     /api/todos/:id              TodoApiWeb.TodoController :update
-  - DELETE  /api/todos/:id              TodoApiWeb.TodoController :delete
-
-### Using CURL to test the API
-
 To get a list of all todos, you can use this command:
 
-  curl -X GET http://localhost:4000/api/todos
+## Run the Application 
 
-To get a specific todo by its id, you can use this command (replace :id with the actual id):
-```
-  curl -X GET http://localhost:4000/api/todos/:id
-```
-To create a new todo with the given JSON body, you can use this command:
-```
-  curl -X POST -H "Content-Type: application/json" -d '{"todo": {"title": "Learn Elixir", "description": "A functional programming language", "completed": false, "deadline": "2023-09-30"}}' http://localhost:4000/api/todos
-```
-To update an existing todo by its id with the given JSON body, you can use this command (replace :id with the actual id):
-```
-  curl -X PATCH -H "Content-Type: application/json" -d '{"todo": {"title": "Learn Elixir", "description": "A functional programming language", "completed": false, "deadline": "2023-09-30"}}' http://localhost:4000/api/todos/:id
-```
-To delete an existing todo by its id, you can use this command (replace :id with the actual id):
-```
-   curl -X DELETE http://localhost:4000/api/todos/:id
-```
- ## Create a new course (Postman or https://hoppscotch.io/)
- ```POST http://localhost:4000/api/todos  Content-Type application/json
-
-  {
-    title: "Learn Elixir",
-    description: "Learn Elixir Fundamentals",
-    completed: false,
-    deadline: ~D[2023-09-25]
-  }
-```
-## Get all courses 
-
-`GET http://localhost:4000/api/todos`
+Open your browser and test the app.
 
 ## Notes
 

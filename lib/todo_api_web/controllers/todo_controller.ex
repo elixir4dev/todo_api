@@ -4,19 +4,25 @@ defmodule TodoApiWeb.TodoController do
   alias TodoApi.Tasks
   alias TodoApi.Tasks.Todo
 
-  action_fallback TodoApiWeb.FallbackController
-
   def index(conn, _params) do
     todos = Tasks.list_todos()
     render(conn, :index, todos: todos)
   end
 
+  def new(conn, _params) do
+    changeset = Tasks.change_todo(%Todo{})
+    render(conn, :new, changeset: changeset)
+  end
+
   def create(conn, %{"todo" => todo_params}) do
-    with {:ok, %Todo{} = todo} <- Tasks.create_todo(todo_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/todos/#{todo}")
-      |> render(:show, todo: todo)
+    case Tasks.create_todo(todo_params) do
+      {:ok, todo} ->
+        conn
+        |> put_flash(:info, "Todo created successfully.")
+        |> redirect(to: ~p"/todos/#{todo}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, :new, changeset: changeset)
     end
   end
 
@@ -25,19 +31,32 @@ defmodule TodoApiWeb.TodoController do
     render(conn, :show, todo: todo)
   end
 
+  def edit(conn, %{"id" => id}) do
+    todo = Tasks.get_todo!(id)
+    changeset = Tasks.change_todo(todo)
+    render(conn, :edit, todo: todo, changeset: changeset)
+  end
+
   def update(conn, %{"id" => id, "todo" => todo_params}) do
     todo = Tasks.get_todo!(id)
 
-    with {:ok, %Todo{} = todo} <- Tasks.update_todo(todo, todo_params) do
-      render(conn, :show, todo: todo)
+    case Tasks.update_todo(todo, todo_params) do
+      {:ok, todo} ->
+        conn
+        |> put_flash(:info, "Todo updated successfully.")
+        |> redirect(to: ~p"/todos/#{todo}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, :edit, todo: todo, changeset: changeset)
     end
   end
 
   def delete(conn, %{"id" => id}) do
     todo = Tasks.get_todo!(id)
+    {:ok, _todo} = Tasks.delete_todo(todo)
 
-    with {:ok, %Todo{}} <- Tasks.delete_todo(todo) do
-      send_resp(conn, :no_content, "")
-    end
+    conn
+    |> put_flash(:info, "Todo deleted successfully.")
+    |> redirect(to: ~p"/todos")
   end
 end

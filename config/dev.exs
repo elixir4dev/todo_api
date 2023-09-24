@@ -5,7 +5,7 @@ config :todo_api, TodoApi.Repo,
   username: "jv_db",
   password: "jv_elixir",
   hostname: "localhost",
-  database: "todo_api_dev",
+  database: "todo_api_dev2",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -23,8 +23,11 @@ config :todo_api, TodoApiWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "ad/UHa4CuUB8utWrzzwnycI0nz9qv8cNqK5bdBOE0o6oN7BBAKAMRAFaYRKydT9h",
-  watchers: []
+  secret_key_base: "nkW7+tB/XFIqQD2yye7xyvSM8snkwoMFoqCYWchJgMYRve5FEl65dUIQOlgMvKgQ",
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+  ]
 
 # ## SSL Support
 #
@@ -48,6 +51,16 @@ config :todo_api, TodoApiWeb.Endpoint,
 # If desired, both `http:` and `https:` keys can be
 # configured to run both http and https servers on
 # different ports.
+
+# Watch static and templates for browser reloading.
+config :todo_api, TodoApiWeb.Endpoint,
+  live_reload: [
+    patterns: [
+      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/gettext/.*(po)$",
+      ~r"lib/todo_api_web/(controllers|live|components)/.*(ex|heex)$"
+    ]
+  ]
 
 # Enable dev routes for dashboard and mailbox
 config :todo_api, dev_routes: true

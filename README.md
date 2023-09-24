@@ -1,9 +1,5 @@
 # TodoApi
 
-## Versions
- * [Basic version](https://github.com/elixir4dev/todo_api/blob/main/Tutorial.md)  This will generate the basic structure of a Phoenix project, including configuration files, a supervision tree, and an initial endpoint, but not everything is needed for an API project.
- * [API_version](https://github.com/elixir4dev/todo_api/blob/api_v2/Tutorial.md).   Tailored specifically for API development. No more unnecessary LiveView, assets, HTML, dashboard, or mailer files. Just the essentials!
-
 To start your Phoenix server:
 
   * Run `mix setup` to install and setup dependencies

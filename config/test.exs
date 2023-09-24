@@ -9,7 +9,7 @@ config :todo_api, TodoApi.Repo,
   username: "jv_db",
   password: "jv_elixir",
   hostname: "localhost",
-  database: "todo_api_test2#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "todo_api_test3#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -17,7 +17,7 @@ config :todo_api, TodoApi.Repo,
 # you can enable the server option below.
 config :todo_api, TodoApiWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "C4rWQXvaKELXfRlWjjLXeozQI8xNfJO/7R86ksnI/SfX9B1nBvHKr9sNdOyNskqC",
+  secret_key_base: "2tLr9ZrmLL4nHuRzPFWuy8ky+SX31byrpW63SNKQ25GAQafKYvbgGiKKIRo6lT6Q",
   server: false
 
 # Print only warnings and errors during test

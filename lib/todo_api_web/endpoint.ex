@@ -7,7 +7,7 @@ defmodule TodoApiWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_todo_api_key",
-    signing_salt: "+J7UiBkK",
+    signing_salt: "LKHdz7xt",
     same_site: "Lax"
   ]
 
@@ -26,6 +26,8 @@ defmodule TodoApiWeb.Endpoint do
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
+    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
+    plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :todo_api
   end
