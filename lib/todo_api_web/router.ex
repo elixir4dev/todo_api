@@ -17,8 +17,7 @@ defmodule TodoApiWeb.Router do
   scope "/", TodoApiWeb do
     pipe_through :browser
 
-    #get "/", PageController, :home
-    forward "/", TodoController, :index
+    get "/", PageController, :home
     resources "/todos", TodoController
   end
 
