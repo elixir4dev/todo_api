@@ -266,7 +266,7 @@ To delete an existing todo by its id, you can use this command (replace :id with
     deadline: ~D[2023-09-25]
   }
 ```
-## Get all courses 
+## Get all Todos 
 
 `GET http://localhost:4000/api/todos`
 
